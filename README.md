@@ -13,11 +13,11 @@ This is a fun garage project. Used technologies:
 
 Find the printable clock face pdf and table in resources folder!
 
-##TODO
+## TODO
 - 3D printed case
 - Small code explanation
 
-###Possible improvements
+### Possible improvements
 - Edit mode switch for more convinient time setting
 - Brightness setting (Other function of switch above.)
 - Blinking led of current minute
