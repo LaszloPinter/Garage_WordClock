@@ -2,7 +2,7 @@
 
 A clock that highlights words that if read together tell you the current time.
 
-![WordClock](Images/clock.png)
+![WordClock](https://github.com/LaszloPinter/Garage_WordClock/blob/master/Images/Clock.png?raw=true)
 
 ### What is this?
 This is a fun garage project. Used technologies:
