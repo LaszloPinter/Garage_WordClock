@@ -19,12 +19,21 @@ public:
 	unsigned long READ_MILLIS = 1000; //How much milliseconds between two clock reads.
 	unsigned long lastReadTime = 0;
 
-	const byte ROTARY_CLK_PIN = 2;
-	const byte ROTARY_DT_PIN = 3;
+	unsigned long TIME_SET_DELAY = 2000; //How much milliseconds after the last rotation before going back to normal mode
+	unsigned long lastRotationTime = 0;
+	boolean timeChangedManually = false;
+
+	const byte ROTARY_CLK_PIN = 3;
+	const byte ROTARY_DT_PIN = 2;
 	const byte ROTARY_SW_PIN = 4;
 
 	boolean isMinuteMode = true;
-	boolean isModeChanged = false;
+
+	unsigned long BUTTON_DEBOUNCE_MILLIS = 8;
+	unsigned long lastButtonTime = 0;
+	bool isModeChanged = false;
+	int lastButtonState = HIGH;
+
 	int lastEncoded = 0;
 	void rotatedLeft();
 	void rotatedRight();
@@ -34,10 +43,9 @@ public:
 	const int CLK_PIN = 5;
 	const int NUM_DEVICES = 4;
 
-	const int RTC_VCC_PIN = 8;
-	const int RTC_CLK_PIN = 10;
-	const int RTC_DAT_PIN = 11;
-	const int RTC_RST_PIN = 12;
+	const int RTC_CLK_PIN = 9;
+	const int RTC_DAT_PIN = 10;
+	const int RTC_RST_PIN = 11;
 
 
 	const int ADDR_TOP_LEFT = 3;
@@ -77,6 +85,8 @@ private:
 	void initFrame(byte addr);
 	static void onRotary();
 	void checkRTC();
+	void checkManualSet();
+	void checkButton();
 	void forceTimeOnRTC();
 
 	void clearAllFrames();

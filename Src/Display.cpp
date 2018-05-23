@@ -26,8 +26,6 @@ void Display::init() {
 	attachInterrupt(digitalPinToInterrupt(ROTARY_CLK_PIN), onRotary, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(ROTARY_DT_PIN), onRotary, CHANGE);
 
-	digitalWrite(RTC_VCC_PIN, HIGH);
-	pinMode(RTC_VCC_PIN, OUTPUT);
 }
 
 void Display::forceTimeOnRTC() {
@@ -39,12 +37,39 @@ void Display::forceTimeOnRTC() {
 }
 
 void Display::checkRTC() {
-	if(millis() - lastReadTime > READ_MILLIS) {
+	if(!timeChangedManually && (millis() - lastReadTime > READ_MILLIS)) {
 		lastReadTime = millis();
 		  tmElements_t tm;
 		  rtc.read(tm);
 		  setTime(tm.Hour, tm.Minute);
 	}
+}
+
+void Display::checkManualSet() {
+	if(timeChangedManually && (millis() - lastRotationTime > TIME_SET_DELAY)) {
+		forceTimeOnRTC();
+		timeChangedManually = false;
+	}
+}
+
+void Display::checkButton() {
+	int read = digitalRead(ROTARY_SW_PIN);
+	if (read != lastButtonState) {
+	    lastButtonTime = millis();
+	 }
+
+	if(millis() - lastButtonTime > BUTTON_DEBOUNCE_MILLIS) {
+		if (read == LOW) {
+			if (!isModeChanged) {
+				isMinuteMode = !isMinuteMode;
+				isModeChanged = true;
+			}
+		} else {
+			isModeChanged = false;
+		}
+	}
+
+	lastButtonState = read;
 }
 
 static void Display::onRotary() {
@@ -59,7 +84,6 @@ void Display::rotatedLeft() {
 	} else {
 		hrs -= 1;
 	}
-	forceTimeOnRTC();
 	onTimeChanged();
 }
 
@@ -69,12 +93,13 @@ void Display::rotatedRight() {
 	} else {
 		hrs += 1;
 	}
-	forceTimeOnRTC();
 	onTimeChanged();
 }
 
 void Display::handleEncoder() {
 	delay(2);
+	timeChangedManually = true;
+	lastRotationTime = millis();
 	int MSB = digitalRead(ROTARY_DT_PIN);
 	int LSB = digitalRead(ROTARY_CLK_PIN);
 	int encoded = (MSB<<1)|LSB;
@@ -178,17 +203,9 @@ void Display::onTimeChanged() {
 }
 
 void Display::loop() {
+	checkManualSet();
 	checkRTC();
-
-	if (!digitalRead(ROTARY_SW_PIN)) {
-		if (!isModeChanged) {
-			isMinuteMode = !isMinuteMode;
-			isModeChanged = true;
-			delay(30);
-		}
-	} else {
-		isModeChanged = false;
-	}
+	checkButton();
 
 }
 
